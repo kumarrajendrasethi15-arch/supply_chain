@@ -44,7 +44,7 @@ models:
       +schema: raw
     silver:
       +materialized: table
-      #+database: supply_chain_db
+      database: target.database
       +schema: silver
     gold:
       +materialized: table
@@ -81,12 +81,12 @@ seeds:
           CURRENT_TIMESTAMP,
           'SUCCESS',
           'Seed loaded via dbt seed'
-          FROM {{target.database}}.SUPPLY_CHAIN_SCH_TARGET_RAW.WAREHOUSE_LOCATIONS
+          FROM {{target.database}}.{{ target.schema }}.WAREHOUSE_LOCATIONS
           WHERE NOT EXISTS (
           SELECT 1
           FROM {{target.database}}.AUDIT.MODEL_EXECUTION_LOG
           WHERE model_name = 'warehouse_locations'
-            AND row_count = (SELECT COUNT(*) FROM {{target.database}}.SUPPLY_CHAIN_SCH_TARGET_RAW.WAREHOUSE_LOCATIONS))  
+            AND row_count = (SELECT COUNT(*) FROM {{target.database}}.{{ target.schema }}.WAREHOUSE_LOCATIONS))  
 snapshots:
   my_new_project:
     customer:
