@@ -40,21 +40,21 @@ models:
     # Applies to all files under models/example/
     raw:
       +materialized: table
-      +database: supply_chain_db
+      +database: target.database
       +schema: raw
     silver:
       +materialized: table
-      +database: supply_chain_db
+      #+database: supply_chain_db
       +schema: silver
     gold:
       +materialized: table
-      +database: supply_chain_db
+      +database: target.database
       +schema: gold
       +tags: gold 
 seeds:
   my_new_project:  # Replace with your actual dbt project name
     warehouse_locations:
-      +database: supply_chain_db
+      +database: target.database
       +schema: raw
       +quote_columns: false
       +column_types:
@@ -64,7 +64,7 @@ seeds:
         warehouse_name: VARCHAR(50)
       +post-hook:
         - >
-          INSERT INTO SUPPLY_CHAIN_DB.AUDIT.MODEL_EXECUTION_LOG (
+          INSERT INTO {{target.database}}.AUDIT.MODEL_EXECUTION_LOG (
             model_name,
             load_date,
             row_count,
@@ -81,12 +81,12 @@ seeds:
           CURRENT_TIMESTAMP,
           'SUCCESS',
           'Seed loaded via dbt seed'
-          FROM SUPPLY_CHAIN_DB.SUPPLY_CHAIN_SCH_TARGET_RAW.WAREHOUSE_LOCATIONS
+          FROM {{target.database}}.SUPPLY_CHAIN_SCH_TARGET_RAW.WAREHOUSE_LOCATIONS
           WHERE NOT EXISTS (
           SELECT 1
-          FROM SUPPLY_CHAIN_DB.AUDIT.MODEL_EXECUTION_LOG
+          FROM {{target.database}}.AUDIT.MODEL_EXECUTION_LOG
           WHERE model_name = 'warehouse_locations'
-            AND row_count = (SELECT COUNT(*) FROM SUPPLY_CHAIN_DB.SUPPLY_CHAIN_SCH_TARGET_RAW.WAREHOUSE_LOCATIONS))  
+            AND row_count = (SELECT COUNT(*) FROM {{target.database}}.SUPPLY_CHAIN_SCH_TARGET_RAW.WAREHOUSE_LOCATIONS))  
 snapshots:
   my_new_project:
     customer:
